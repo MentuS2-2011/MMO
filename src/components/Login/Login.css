@@ -1,0 +1,698 @@
+/* ===== RESET CRÍTICO ===== */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  /* Garante fundo escuro caso a imagem demore a carregar */
+  background-color: #0a0a0a;
+}
+
+/* ===== VARIÁVEIS ===== */
+:root {
+  --primary-color: #ffd700;
+  --primary-hover: #ffed4a;
+  --bg-overlay: rgba(0, 0, 0, 0.85);
+  --text-primary: #fff;
+  --text-secondary: #ccc;
+  --text-muted: #999;
+  --border-color: #444;
+  --error-color: #ff6b6b;
+  --error-bg: rgba(255, 0, 0, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.7);
+  --input-bg: rgba(255, 255, 255, 0.05);
+}
+
+/* ===== CONTAINER PRINCIPAL ===== */
+.login-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  background-color: #0a0a0a; /* fallback caso imagem não carregue */
+}
+
+/* ===== BACKGROUND COM ZOOM ===== */
+.login-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('../../assets/Wallpaper/Cenario-tela-login.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+  animation: zoomBackground 20s infinite alternate ease-in-out;
+}
+
+@keyframes zoomBackground {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.1); }
+}
+
+/* ===== CONTEÚDO DO LOGIN ===== */
+.login-content {
+  position: relative;
+  width: 450px;
+  height: 100vh;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 60px 50px;
+  color: var(--text-primary);
+  z-index: 1;
+  box-shadow: 10px 0 50px var(--shadow-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+/* ===== SCROLLBAR PERSONALIZADA ===== */
+.login-content::-webkit-scrollbar {
+  width: 5px;
+}
+
+.login-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.login-content::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 5px;
+}
+
+.login-content::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
+}
+
+/* ===== LOGO E TÍTULOS ===== */
+.logo-container {
+  position: relative;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.login-content h1 {
+  font-size: 36px;
+  color: var(--primary-color);
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  position: relative;
+  display: inline-block;
+  margin: 0;
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+  to {
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.3);
+  }
+}
+
+.underline-animation {
+  height: 2px;
+  width: 0;
+  background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+  margin-top: 5px;
+  animation: expandUnderline 1s ease-out forwards;
+}
+
+@keyframes expandUnderline {
+  to {
+    width: 100%;
+  }
+}
+
+.login-content h2 {
+  font-size: 24px;
+  margin-bottom: 40px;
+  color: var(--text-primary);
+  font-weight: 300;
+  letter-spacing: 3px;
+  text-align: center;
+}
+
+/* ===== FORMULÁRIO ===== */
+.form-container {
+  width: 100%;
+}
+
+/* ===== INPUT GROUP COM ANIMAÇÃO ===== */
+.input-group {
+  position: relative;
+  margin-bottom: 35px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 15px 0 5px 0;
+  border: none;
+  border-bottom: 2px solid var(--border-color);
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 16px;
+  transition: all 0.3s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.input-group input:focus {
+  border-bottom-color: transparent;
+}
+
+.input-group label {
+  position: absolute;
+  top: 15px;
+  left: 0;
+  color: var(--text-muted);
+  font-size: 16px;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input-group.focused label,
+.input-group.filled label,
+.input-group input:not(:placeholder-shown) + label {
+  top: -10px;
+  font-size: 12px;
+  color: var(--primary-color);
+}
+
+.label-text {
+  position: relative;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.input-group.focused .label-text {
+  transform: translateX(5px);
+}
+
+.input-border {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--primary-color);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input-group.focused .input-border,
+.input-group input:focus ~ .input-border {
+  width: 100%;
+}
+
+.input-group::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.input-group.focused::after {
+  width: 100%;
+}
+
+/* ===== BOTÃO ESQUECI SENHA ===== */
+.forgot-password-container {
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+.forgot-password-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 5px;
+  position: relative;
+  transition: color 0.3s ease;
+  width: auto;
+  margin: 0;
+  text-transform: none;
+  letter-spacing: normal;
+  animation: pulse 2s infinite;
+}
+
+.forgot-password-btn:hover {
+  color: #ffffff;
+}
+
+.forgot-password-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--primary-color);
+  transition: width 0.3s ease;
+}
+
+.forgot-password-btn:hover::after {
+  width: 100%;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* ===== BOTÃO SUBMIT ===== */
+.submit-btn {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
+  color: #000;
+  border: none;
+  border-radius: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.submit-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+}
+
+.submit-btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.submit-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(255, 215, 0, 0.4);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+.submit-btn:disabled {
+  background: #666;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.submit-btn.loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* ===== LOADER ===== */
+.loader {
+  width: 25px;
+  height: 25px;
+  border: 3px solid rgba(0, 0, 0, 0.3);
+  border-top: 3px solid #000;
+  border-radius: 50%;
+  margin: 0 auto;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== MENSAGEM DE ERRO ===== */
+.error-message {
+  background: var(--error-bg);
+  border-left: 3px solid #ff4444;
+  color: var(--error-color);
+  padding: 12px;
+  margin-bottom: 25px;
+  font-size: 14px;
+  border-radius: 3px;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(10px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+
+/* ===== LINK DE CADASTRO ===== */
+.cadastro-link {
+  text-align: center;
+  margin-top: 30px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.cadastro-link a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: bold;
+  position: relative;
+  padding: 5px 0;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.cadastro-link a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--primary-color);
+  transition: width 0.3s ease;
+}
+
+.cadastro-link a:hover::after {
+  width: 100%;
+}
+
+/* ===== ANIMAÇÕES DE ENTRADA ===== */
+.slide-in-left {
+  animation: slideInLeft 0.5s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.8s ease-out;
+}
+
+.fade-in-delay {
+  animation: fadeIn 0.8s ease-out 0.3s both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== TRANSIÇÕES DE PÁGINA (aplicadas ao body) ===== */
+body.page-enter {
+  animation: pageEnter 0.3s ease-out;
+}
+
+body.page-exit {
+  animation: pageExit 0.3s ease-out forwards;
+  /* pointer-events off para evitar cliques durante saída */
+  pointer-events: none;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pageExit {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+/* ===== RESPONSIVIDADE ===== */
+
+/* Tablets (até 1024px) */
+@media screen and (max-width: 1024px) {
+  .login-content {
+    width: 400px;
+    padding: 50px 40px;
+  }
+
+  .login-content h1 {
+    font-size: 32px;
+  }
+
+  .login-content h2 {
+    font-size: 22px;
+    margin-bottom: 35px;
+  }
+
+  .submit-btn {
+    padding: 14px;
+    font-size: 16px;
+  }
+}
+
+/* Tablets pequenos e celulares grandes (até 768px) */
+@media screen and (max-width: 768px) {
+  .login-container {
+    justify-content: center;
+  }
+
+  .login-background {
+    filter: brightness(0.5);
+  }
+
+  .login-content {
+    width: 90%;
+    max-width: 450px;
+    height: auto;
+    max-height: 90vh;
+    padding: 40px 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    margin: 20px;
+  }
+
+  .login-content h1 {
+    font-size: 28px;
+  }
+
+  .login-content h2 {
+    font-size: 20px;
+    margin-bottom: 30px;
+  }
+
+  .input-group {
+    margin-bottom: 30px;
+  }
+
+  .input-group input {
+    font-size: 15px;
+  }
+
+  .forgot-password-btn {
+    font-size: 13px;
+  }
+
+  .submit-btn {
+    padding: 12px;
+    font-size: 15px;
+  }
+
+  .cadastro-link {
+    margin-top: 25px;
+    font-size: 13px;
+  }
+}
+
+/* Celulares (até 480px) */
+@media screen and (max-width: 480px) {
+  .login-content {
+    width: 95%;
+    padding: 30px 20px;
+    margin: 15px;
+  }
+
+  .login-content h1 {
+    font-size: 24px;
+  }
+
+  .login-content h2 {
+    font-size: 18px;
+    margin-bottom: 25px;
+    letter-spacing: 2px;
+  }
+
+  .logo-container {
+    margin-bottom: 20px;
+  }
+
+  .input-group {
+    margin-bottom: 25px;
+  }
+
+  .input-group label {
+    font-size: 14px;
+  }
+
+  .input-group.focused label,
+  .input-group.filled label {
+    font-size: 10px;
+  }
+
+  .input-group input {
+    font-size: 14px;
+    padding: 12px 0 4px 0;
+  }
+
+  .forgot-password-container {
+    margin-bottom: 15px;
+  }
+
+  .forgot-password-btn {
+    font-size: 12px;
+  }
+
+  .submit-btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .error-message {
+    padding: 10px;
+    font-size: 12px;
+    margin-bottom: 20px;
+  }
+
+  .cadastro-link {
+    margin-top: 20px;
+    font-size: 12px;
+  }
+
+  .loader {
+    width: 20px;
+    height: 20px;
+    border-width: 2px;
+  }
+}
+
+/* Celulares muito pequenos (até 360px) */
+@media screen and (max-width: 360px) {
+  .login-content {
+    padding: 25px 15px;
+  }
+
+  .login-content h1 {
+    font-size: 22px;
+  }
+
+  .login-content h2 {
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  .input-group {
+    margin-bottom: 20px;
+  }
+
+  .submit-btn {
+    padding: 8px;
+    font-size: 13px;
+  }
+}
+
+/* Ajuste para orientação paisagem em celulares */
+@media screen and (max-height: 600px) and (orientation: landscape) {
+  .login-content {
+    height: auto;
+    max-height: 95vh;
+    padding: 20px 30px;
+  }
+
+  .logo-container {
+    margin-bottom: 15px;
+  }
+
+  .login-content h1 {
+    font-size: 24px;
+  }
+
+  .login-content h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+
+  .input-group {
+    margin-bottom: 15px;
+  }
+
+  .forgot-password-container {
+    margin-bottom: 10px;
+  }
+
+  .cadastro-link {
+    margin-top: 15px;
+  }
+}
+
+/* Acessibilidade - reduzir animações se preferir */
+@media (prefers-reduced-motion: reduce) {
+  .login-background,
+  .login-content *,
+  .forgot-password-btn,
+  .submit-btn,
+  .error-message,
+  .cadastro-link a::after,
+  body.page-enter,
+  body.page-exit {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/* Suporte para telas de alta resolução */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .login-background {
+    background-image: url('../../assets/Wallpaper/Cenario-tela-login@2x.jpg');
+  }
+}
