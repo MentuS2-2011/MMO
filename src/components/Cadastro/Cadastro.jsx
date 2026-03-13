@@ -63,6 +63,23 @@ const Cadastro = () => {
 
     setLoading(true)
 
+    // No handleSubmit, antes de chamar authService.cadastrar
+    const nomeDisponivel = await verificarNomeDisponivel(formData.nome)
+    if (!nomeDisponivel) {
+      setError('Nome de usuário já está em uso')
+      setLoading(false)
+      return
+    }
+
+    const verificarNomeDisponivel = async (nome) => {
+    const { data, error } = await supabase
+      .from('usuarios')
+      .select('id')
+      .eq('nome', nome)
+      .single()
+    return !data
+  }
+
     const result = await authService.cadastrar(
       formData.nome,
       formData.email,
@@ -220,6 +237,8 @@ const Cadastro = () => {
       </div>
     </div>
   )
+
+  
 }
 
 export default Cadastro

@@ -1,67 +1,79 @@
 import Cookies from 'js-cookie'
 
 export const cookieUtils = {
+  // Usar apenas um padrão de cookies
   defaultConfig: {
-    expires: 7,
+    expires: 7, // 7 dias
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     path: '/'
   },
 
-  setUserSession(userId, token) {
-    Cookies.set('userId', userId, this.defaultConfig)
-    Cookies.set('sessionToken', token, this.defaultConfig)
-    Cookies.set('lastVisited', new Date().toISOString(), this.defaultConfig)
+  // Config para "lembrar-me" (30 dias)
+  persistentConfig: {
+    expires: 30,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/'
   },
 
-  setUserPreferences(prefs) {
-    Cookies.set('userPrefs', JSON.stringify(prefs), { ...this.defaultConfig, expires: 30 })
-  },
-
-  getUserId() {
-    return Cookies.get('userId')
+  // Salvar sessão (pode ser persistente ou não)
+  setUserSession(userId, token, rememberMe = true) {
+    const config = rememberMe ? this.persistentConfig : { ...this.defaultConfig, expires: undefined } // expires: undefined = sessão
+    Cookies.set('session_token', token, config)
+    Cookies.set('user_id', userId, config)
+    Cookies.set('last_visit', new Date().toISOString(), config)
   },
 
   getSessionToken() {
-    return Cookies.get('sessionToken')
+    return Cookies.get('session_token')
   },
 
-  getUserPreferences() {
-    const prefs = Cookies.get('userPrefs')
-    return prefs ? JSON.parse(prefs) : {}
-  },
-
-  isLoggedIn() {
-    return !!(this.getUserId() && this.getSessionToken())
+  getUserId() {
+    return Cookies.get('user_id')
   },
 
   clearSession() {
-    Cookies.remove('userId', { path: '/' })
-    Cookies.remove('sessionToken', { path: '/' })
-    Cookies.remove('lastVisited', { path: '/' })
-    Cookies.remove('userPrefs', { path: '/' })
+    Cookies.remove('session_token', { path: '/' })
+    Cookies.remove('user_id', { path: '/' })
+    Cookies.remove('last_visit', { path: '/' })
+    Cookies.remove('user_prefs', { path: '/' })
   },
 
-  syncWithLocalStorage(userData) {
-    localStorage.setItem('mmo_user', JSON.stringify({
+  setUserPreferences(prefs) {
+    Cookies.set('user_prefs', JSON.stringify(prefs), this.persistentConfig)
+  },
+
+  getUserPreferences() {
+    const prefs = Cookies.get('user_prefs')
+    return prefs ? JSON.parse(prefs) : {}
+  },
+
+  // Fallback para localStorage
+  saveToLocalStorage(userData) {
+    localStorage.setItem('user_backup', JSON.stringify({
       ...userData,
-      cookieExpiry: Date.now() + (7 * 24 * 60 * 60 * 1000)
+      expiry: Date.now() + (30 * 24 * 60 * 60 * 1000)
     }))
   },
 
   getFromLocalStorage() {
-    const userStr = localStorage.getItem('mmo_user')
-    if (!userStr) return null
+    const data = localStorage.getItem('user_backup')
+    if (!data) return null
     
     try {
-      const user = JSON.parse(userStr)
-      if (user.cookieExpiry && Date.now() > user.cookieExpiry) {
-        localStorage.removeItem('mmo_user')
+      const parsed = JSON.parse(data)
+      if (parsed.expiry && Date.now() > parsed.expiry) {
+        localStorage.removeItem('user_backup')
         return null
       }
-      return user
+      return parsed
     } catch {
       return null
     }
+  },
+
+  clearLocalStorage() {
+    localStorage.removeItem('user_backup')
   }
 }

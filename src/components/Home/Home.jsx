@@ -101,7 +101,7 @@ const Home = () => {
 
               {showMenu && (
                 <div className="profile-menu">
-                  <button onClick={() => { setShowMenu(false); navigateWithExit('/perfil') }}>
+                  <button onClick={() => { setShowMenu(false); navigateWithExit('/Perfil') }}>
                     <span>👤</span> Meu Perfil
                   </button>
                   <button onClick={() => { setShowMenu(false); navigateWithExit('/personagens') }}>
@@ -122,10 +122,6 @@ const Home = () => {
 
         {/* ── MAIN ── */}
         <main className="home-main">
-          <div className="welcome-card">
-            <h2>Bem-vindo ao mundo de MMO!</h2>
-            <p>Escolha seu destino e comece sua aventura</p>
-          </div>
 
           <div className="quick-actions">
             <button className="action-card" onClick={() => navigateWithExit('/jogar')}>

@@ -34,22 +34,22 @@ const Login = () => {
     }, 300)
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    const handleSubmit = async (e) => {
+      e.preventDefault()
+      setError('')
+      setLoading(true)
 
-    const result = await authService.login(nome, senha)
-    
-    if (result.success) {
-      navigateWithExit('/home')
-      // login() chamado após a animação terminar
-      setTimeout(() => login(result.user), 300)
-    } else {
-      setError(result.error)
-      setLoading(false)
+      // Sempre true por enquanto (você pode adicionar um checkbox depois)
+      const result = await authService.login(nome, senha, true)
+      
+      if (result.success) {
+        navigateWithExit('/home')
+        setTimeout(() => login(result.user, true), 300)
+      } else {
+        setError(result.error)
+        setLoading(false)
+      }
     }
-  }
 
   return (
     <div className="login-container">

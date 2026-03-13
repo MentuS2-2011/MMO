@@ -6,6 +6,7 @@ import Login from './components/Login/Login'
 import Cadastro from './components/Cadastro/Cadastro'
 import RecuperarSenha from './components/RecuperarSenha/RecuperarSenha'
 import Home from './components/Home/Home'
+import Perfil from './components/Perfil/Perfil'
 import './App.css'
 
 // Componente de rota protegida
@@ -53,17 +54,6 @@ const Dashboard = () => {
   )
 }
 
-// Página de perfil (placeholder)
-const Perfil = () => {
-  const { user } = useAuth()
-  
-  return (
-    <div className="perfil-container">
-      <h1>Perfil de {user?.nome}</h1>
-      <p>Em construção...</p>
-    </div>
-  )
-}
 
 // Página de personagens (placeholder)
 const Personagens = () => {
@@ -116,6 +106,11 @@ function App() {
           <Route path="/personagens" element={
             <PrivateRoute>
               <Personagens />
+            </PrivateRoute>
+          } />
+          <Route path="/perfil" element={
+            <PrivateRoute>
+              <Perfil />
             </PrivateRoute>
           } />
 
