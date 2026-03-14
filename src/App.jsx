@@ -2,67 +2,38 @@ import React from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { useAuth } from './hooks/useAuth'
-import Login from './components/Login/Login'
-import Cadastro from './components/Cadastro/Cadastro'
+
+import Login          from './components/Login/Login'
+import Cadastro       from './components/Cadastro/Cadastro'
 import RecuperarSenha from './components/RecuperarSenha/RecuperarSenha'
-import Home from './components/Home/Home'
-import Perfil from './components/Perfil/Perfil'
+import Home           from './components/Home/Home'
+import Perfil         from './components/Perfil/Perfil'
+import Amizades       from './components/Amizades/Amizades'
+
 import './App.css'
 
-// Componente de rota protegida
+// ── Rota privada: se não logado → vai para Login ──────────────────────────
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth()
-  
+
   if (loading) {
     return (
       <div className="loading-screen">
-        <div className="loader"></div>
-        <p>Carregando...</p>
+        <div className="loading-logo">GAME - MMO</div>
+        <div className="loading-spinner-ring"></div>
+        <p className="loading-text">Carregando…</p>
       </div>
     )
   }
-  
-  return user ? children : <Navigate to="/" />
+
+  return user ? children : <Navigate to="/" replace />
 }
 
-// Componente de rota pública (redireciona para home se já estiver logado)
+// ── Rota pública: se já logado → vai para Home ────────────────────────────
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth()
-  
-  if (loading) {
-    return (
-      <div className="loading-screen">
-        <div className="loader"></div>
-        <p>Carregando...</p>
-      </div>
-    )
-  }
-  
-  return !user ? children : <Navigate to="/home" />
-}
-
-// Dashboard simples (mantido para compatibilidade)
-const Dashboard = () => {
-  const { user, logout } = useAuth()
-  
-  return (
-    <div className="dashboard">
-      <h1>Bem-vindo, {user?.nome}!</h1>
-      <p>Gold: {user?.gold}</p>
-      <button onClick={logout}>Sair</button>
-    </div>
-  )
-}
-
-
-// Página de personagens (placeholder)
-const Personagens = () => {
-  return (
-    <div className="personagens-container">
-      <h1>Meus Personagens</h1>
-      <p>Em construção...</p>
-    </div>
-  )
+  if (loading) return null
+  return user ? <Navigate to="/home" replace /> : children
 }
 
 function App() {
@@ -70,52 +41,19 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Rotas públicas - só acessíveis se NÃO estiver logado */}
-          <Route path="/" element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          } />
-          <Route path="/cadastro" element={
-            <PublicRoute>
-              <Cadastro />
-            </PublicRoute>
-          } />
-          <Route path="/recuperar-senha" element={
-            <PublicRoute>
-              <RecuperarSenha />
-            </PublicRoute>
-          } />
+          {/* Públicas */}
+          <Route path="/"                element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/cadastro"        element={<PublicRoute><Cadastro /></PublicRoute>} />
+          <Route path="/recuperar-senha" element={<PublicRoute><RecuperarSenha /></PublicRoute>} />
 
-          {/* Rotas privadas - só acessíveis se estiver logado */}
-          <Route path="/home" element={
-            <PrivateRoute>
-              <Home />
-            </PrivateRoute>
-          } />
-          <Route path="/dashboard" element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          } />
-          <Route path="/perfil" element={
-            <PrivateRoute>
-              <Perfil />
-            </PrivateRoute>
-          } />
-          <Route path="/personagens" element={
-            <PrivateRoute>
-              <Personagens />
-            </PrivateRoute>
-          } />
-          <Route path="/perfil" element={
-            <PrivateRoute>
-              <Perfil />
-            </PrivateRoute>
-          } />
+          {/* Privadas */}
+          <Route path="/home"      element={<PrivateRoute><Home /></PrivateRoute>} />
+          <Route path="/perfil"    element={<PrivateRoute><Perfil /></PrivateRoute>} />
+          <Route path="/amizades"  element={<PrivateRoute><Amizades /></PrivateRoute>} />
 
-          {/* Rota 404 - redireciona para página apropriada */}
-          <Route path="*" element={<Navigate to="/" />} />
+          {/* Legado / fallback */}
+          <Route path="/dashboard" element={<Navigate to="/home" replace />} />
+          <Route path="*"          element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>

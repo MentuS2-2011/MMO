@@ -1,439 +1,375 @@
-/* ===== RESET CRÍTICO ===== */
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #0a0a0a;
-}
-
-/* ===== VARIÁVEIS (idênticas ao Login/Cadastro) ===== */
-:root {
-  --primary-color: #ffd700;
-  --primary-hover: #ffed4a;
-  --bg-overlay: rgba(0, 0, 0, 0.85);
-  --text-primary: #fff;
-  --text-secondary: #ccc;
-  --text-muted: #999;
-  --border-color: #444;
-  --error-color: #ff6b6b;
-  --error-bg: rgba(255, 0, 0, 0.1);
-  --shadow-color: rgba(0, 0, 0, 0.7);
-}
-
-/* ===== CONTAINER PRINCIPAL ===== */
+/* ── Base (igual às outras telas) ───────────────────────────────────────── */
 .recuperar-container {
   position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
   align-items: center;
-  background-color: #0a0a0a;
+  justify-content: center;
+  overflow: hidden;
 }
 
-/* ===== BACKGROUND COM ZOOM ===== */
 .recuperar-background {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background-image: url('../../assets/Wallpaper/Cenario-tela-recuperar.jpg');
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
+  animation: zoomBackground 30s ease-in-out infinite alternate;
   z-index: 0;
-  animation: zoomBackground 20s infinite alternate ease-in-out;
+}
+
+.recuperar-background::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0,0,0,0.88) 0%,
+    rgba(10,10,30,0.82) 50%,
+    rgba(0,0,0,0.88) 100%
+  );
 }
 
 @keyframes zoomBackground {
-  0%   { transform: scale(1); }
-  100% { transform: scale(1.1); }
+  from { transform: scale(1); }
+  to   { transform: scale(1.08); }
 }
 
-/* ===== CARD CENTRAL ===== */
 .recuperar-content {
   position: relative;
-  width: 450px;
-  background: var(--bg-overlay);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  padding: 50px 50px 40px;
-  border-radius: 15px;
-  color: var(--text-primary);
   z-index: 1;
-  box-shadow: 0 10px 50px var(--shadow-color);
-  animation: popIn 0.5s ease-out;
-  box-sizing: border-box;
-  max-height: 95vh;
-  overflow-y: auto;
-}
-
-@keyframes popIn {
-  from { opacity: 0; transform: scale(0.92); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-/* ===== SCROLLBAR PERSONALIZADA ===== */
-.recuperar-content::-webkit-scrollbar { width: 5px; }
-.recuperar-content::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
-.recuperar-content::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 5px; }
-.recuperar-content::-webkit-scrollbar-thumb:hover { background: var(--primary-hover); }
-
-/* ===== LOGO E TÍTULOS ===== */
-.recuperar-content .logo-container {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.recuperar-content h1 {
-  font-size: 36px;
-  color: var(--primary-color);
-  display: inline-block;
-  margin: 0;
-  animation: glow 2s ease-in-out infinite alternate;
-}
-
-@keyframes glow {
-  from { text-shadow: 0 0 10px rgba(255,215,0,0.5); }
-  to   { text-shadow: 0 0 20px rgba(255,215,0,0.8), 0 0 30px rgba(255,215,0,0.3); }
-}
-
-.recuperar-content .underline-animation {
-  height: 2px;
-  width: 0;
-  background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
-  margin-top: 5px;
-  animation: expandUnderline 1s ease-out forwards;
-}
-
-@keyframes expandUnderline {
-  to { width: 100%; }
-}
-
-.recuperar-content h2 {
-  font-size: 22px;
-  margin-bottom: 12px;
-  color: var(--text-primary);
-  font-weight: 300;
-  letter-spacing: 3px;
-  text-align: center;
-}
-
-.info-text {
-  text-align: center;
-  color: var(--text-muted);
-  margin-bottom: 28px;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-/* ===== FORMULÁRIO ===== */
-.recuperar-content .form-container {
   width: 100%;
+  max-width: 420px;
+  padding: 48px 40px;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 16px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(255,215,0,0.05);
+  animation: slideUp 0.4s ease-out;
 }
 
-/* ===== INPUT GROUP (idêntico ao Login/Cadastro) ===== */
-.recuperar-content .input-group {
-  position: relative;
-  margin-bottom: 35px;
-}
-
-.recuperar-content .input-group input {
-  width: 100%;
-  padding: 15px 0 5px 0;
-  border: none;
-  border-bottom: 2px solid var(--border-color);
-  background: transparent;
-  color: var(--text-primary);
-  font-size: 16px;
-  transition: all 0.3s ease;
-  outline: none;
-  box-sizing: border-box;
-}
-
-.recuperar-content .input-group input:focus {
-  border-bottom-color: transparent;
-}
-
-.recuperar-content .input-group label {
-  position: absolute;
-  top: 15px;
-  left: 0;
-  color: var(--text-muted);
-  font-size: 16px;
-  pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.recuperar-content .input-group.focused label,
-.recuperar-content .input-group.filled label {
-  top: -10px;
-  font-size: 12px;
-  color: var(--primary-color);
-}
-
-.recuperar-content .label-text {
-  position: relative;
-  display: inline-block;
-  transition: transform 0.3s ease;
-}
-
-.recuperar-content .input-group.focused .label-text {
-  transform: translateX(5px);
-}
-
-.recuperar-content .input-border {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: var(--primary-color);
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.recuperar-content .input-group.focused .input-border {
-  width: 100%;
-}
-
-.recuperar-content .input-group::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
-  transition: all 0.3s ease;
-  transform: translateX(-50%);
-}
-
-.recuperar-content .input-group.focused::after {
-  width: 100%;
-}
-
-/* ===== INDICADOR SENHAS COINCIDEM ===== */
-.senha-match {
-  display: block;
-  margin-top: 6px;
-  font-size: 12px;
-  transition: color 0.3s ease;
-}
-.senha-match.valid   { color: #4caf50; }
-.senha-match.invalid { color: var(--error-color); }
-
-/* ===== BOTÃO SUBMIT (idêntico ao Login/Cadastro) ===== */
-.recuperar-content .submit-btn {
-  width: 100%;
-  padding: 15px;
-  background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
-  color: #000;
-  border: none;
-  border-radius: 5px;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  margin-top: 5px;
-}
-
-.recuperar-content .submit-btn::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s ease, height 0.6s ease;
-}
-
-.recuperar-content .submit-btn:hover::before {
-  width: 300px;
-  height: 300px;
-}
-
-.recuperar-content .submit-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(255, 215, 0, 0.4);
-}
-
-.recuperar-content .submit-btn:active {
-  transform: translateY(0);
-}
-
-.recuperar-content .submit-btn:disabled {
-  background: #666;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.recuperar-content .submit-btn.loading {
-  pointer-events: none;
-  opacity: 0.8;
-}
-
-/* ===== LOADER ===== */
-.recuperar-content .loader {
-  width: 25px;
-  height: 25px;
-  border: 3px solid rgba(0, 0, 0, 0.3);
-  border-top: 3px solid #000;
-  border-radius: 50%;
-  margin: 0 auto;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0%   { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* ===== MENSAGENS ===== */
-.recuperar-content .error-message {
-  background: var(--error-bg);
-  border-left: 3px solid #ff4444;
-  color: var(--error-color);
-  padding: 12px;
-  margin-bottom: 20px;
-  font-size: 14px;
-  border-radius: 3px;
-  animation: shake 0.5s ease-in-out;
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20%       { transform: translateX(-10px); }
-  40%       { transform: translateX(10px); }
-  60%       { transform: translateX(-5px); }
-  80%       { transform: translateX(5px); }
-}
-
-.recuperar-content .success-message {
-  background: rgba(76, 175, 80, 0.1);
-  border-left: 3px solid #4caf50;
-  color: #4caf50;
-  padding: 12px;
-  margin-bottom: 20px;
-  font-size: 14px;
-  border-radius: 3px;
-}
-
-/* ===== LINK VOLTAR ===== */
-.voltar-link {
-  text-align: center;
-  margin-top: 25px;
-  font-size: 14px;
-}
-
-.voltar-link a {
-  color: var(--primary-color);
-  text-decoration: none;
-  font-weight: bold;
-  position: relative;
-  padding: 5px 0;
-  display: inline-block;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.voltar-link a::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: var(--primary-color);
-  transition: width 0.3s ease;
-}
-
-.voltar-link a:hover::after {
-  width: 100%;
-}
-
-/* ===== ANIMAÇÕES DE ENTRADA ===== */
-.fade-in {
-  animation: fadeIn 0.6s ease-out;
-}
-
-.fade-in-delay {
-  animation: fadeIn 0.6s ease-out 0.2s both;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(15px); }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ===== TRANSIÇÕES DE PÁGINA (mesmo do Login/Cadastro) ===== */
-body.page-enter {
-  animation: pageEnter 0.3s ease-out;
+/* ── Logo ─────────────────────────────────────────────────────────────────── */
+.logo-container {
+  text-align: center;
+  margin-bottom: 8px;
+}
+.logo-container h1 {
+  font-size: 1.7rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #ffd700;
+  text-shadow: 0 0 20px rgba(255,215,0,0.5);
+  margin: 0 0 6px;
+}
+.underline-animation {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ffd700, transparent);
+  animation: shimmer 2s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%,100% { opacity: 0.4; }
+  50%      { opacity: 1; }
 }
 
-body.page-exit {
-  animation: pageExit 0.3s ease-out forwards;
+/* ── Indicador de etapas ────────────────────────────────────────────────── */
+.etapas-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin: 20px 0 24px;
+}
+.etapa-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #666;
+  background: rgba(0,0,0,0.5);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+.etapa-dot.active {
+  border-color: #ffd700;
+  color: #ffd700;
+  box-shadow: 0 0 12px rgba(255,215,0,0.4);
+  background: rgba(255,215,0,0.1);
+}
+.etapa-dot.done {
+  border-color: #4caf50;
+  color: #fff;
+  background: #4caf50;
+}
+.etapa-line {
+  flex: 1;
+  max-width: 48px;
+  height: 2px;
+  background: #333;
+  transition: background 0.3s ease;
+}
+.etapa-line.done {
+  background: #4caf50;
+}
+
+/* ── Títulos / texto ────────────────────────────────────────────────────── */
+h2 {
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #fff;
+  margin: 0 0 6px;
+}
+.info-text {
+  text-align: center;
+  color: #999;
+  font-size: 0.85rem;
+  margin: 0 0 24px;
+  line-height: 1.5;
+}
+.info-text strong {
+  color: #ffd700;
+}
+
+/* ── Mensagens ──────────────────────────────────────────────────────────── */
+.error-message {
+  background: rgba(255,107,107,0.12);
+  border: 1px solid rgba(255,107,107,0.4);
+  color: #ff6b6b;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.83rem;
+  margin-bottom: 16px;
+  text-align: center;
+  animation: shake 0.35s ease-out;
+}
+.success-message {
+  background: rgba(76,175,80,0.12);
+  border: 1px solid rgba(76,175,80,0.4);
+  color: #81c784;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.83rem;
+  margin-bottom: 16px;
+  text-align: center;
+}
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  25%      { transform: translateX(-6px); }
+  75%      { transform: translateX(6px); }
+}
+
+/* ── Dev banner ─────────────────────────────────────────────────────────── */
+.dev-banner {
+  background: rgba(255,165,0,0.12);
+  border: 1px dashed rgba(255,165,0,0.5);
+  color: #ffb74d;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  margin-bottom: 16px;
+  text-align: center;
+  font-family: monospace;
+}
+
+/* ── Inputs flutuantes ──────────────────────────────────────────────────── */
+.form-container { display: flex; flex-direction: column; gap: 20px; }
+
+.input-group {
+  position: relative;
+}
+.input-group input {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 16px 14px 6px;
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.input-group input:focus,
+.input-group.focused input { border-color: rgba(255,215,0,0.6); }
+
+.input-group label {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 0.9rem;
   pointer-events: none;
+  transition: all 0.2s ease;
+}
+.input-group.focused label,
+.input-group.filled label {
+  top: 8px;
+  transform: translateY(0);
+  font-size: 0.7rem;
+  color: #ffd700;
 }
 
-@keyframes pageEnter {
-  from { opacity: 0; transform: translateX(20px); }
-  to   { opacity: 1; transform: translateX(0); }
+.input-border {
+  position: absolute;
+  bottom: 0; left: 14px; right: 14px;
+  height: 2px;
+  background: #ffd700;
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+  border-radius: 2px;
+}
+.input-group.focused .input-border { transform: scaleX(1); }
+
+.senha-match {
+  display: block;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  padding-left: 2px;
+}
+.senha-match.valid  { color: #81c784; }
+.senha-match.invalid{ color: #ff6b6b; }
+
+/* ── Inputs de código (4 dígitos) ───────────────────────────────────────── */
+.codigo-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 8px 0 24px;
+}
+.codigo-input {
+  width: 64px;
+  height: 72px;
+  background: rgba(255,255,255,0.06);
+  border: 2px solid #444;
+  border-radius: 12px;
+  color: #ffd700;
+  font-size: 2rem;
+  font-weight: 900;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+  caret-color: #ffd700;
+}
+.codigo-input:focus {
+  border-color: #ffd700;
+  box-shadow: 0 0 16px rgba(255,215,0,0.3);
+  transform: scale(1.05);
+}
+.codigo-input:not(:placeholder-shown) {
+  border-color: rgba(255,215,0,0.5);
+  background: rgba(255,215,0,0.06);
+}
+.codigo-input.shake {
+  animation: shake 0.35s ease-out;
+}
+.codigo-input:disabled {
+  opacity: 0.5;
 }
 
-@keyframes pageExit {
-  from { opacity: 1; transform: translateX(0); }
-  to   { opacity: 0; transform: translateX(-20px); }
+.validando-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #999;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+.loader-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,215,0,0.3);
+  border-top-color: #ffd700;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
 }
 
-/* ===== RESPONSIVIDADE ===== */
-@media screen and (max-width: 520px) {
-  .recuperar-content {
-    width: 92%;
-    padding: 40px 25px 30px;
-    border-radius: 12px;
-  }
-  .recuperar-content h1 { font-size: 28px; }
-  .recuperar-content h2 { font-size: 18px; letter-spacing: 2px; }
+/* ── Reenviar código ────────────────────────────────────────────────────── */
+.reenviar-container { text-align: center; margin-top: -8px; }
+.reenviar-timer     { color: #666; font-size: 0.82rem; margin: 0; }
+.reenviar-btn {
+  background: none;
+  border: none;
+  color: #ffd700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+.reenviar-btn:hover { color: #ffed4a; }
+
+/* ── Botão submit ───────────────────────────────────────────────────────── */
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #ffd700, #ffb300);
+  border: none;
+  border-radius: 8px;
+  color: #000;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+}
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255,215,0,0.4);
+}
+.submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.loader {
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(0,0,0,0.3);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
-@media screen and (max-width: 360px) {
-  .recuperar-content {
-    width: 96%;
-    padding: 30px 18px 25px;
-  }
-  .recuperar-content h1 { font-size: 24px; }
+/* ── Voltar ─────────────────────────────────────────────────────────────── */
+.voltar-link {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.85rem;
+}
+.voltar-link a {
+  color: #888;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.voltar-link a:hover { color: #ffd700; }
+
+/* ── Animações globais ──────────────────────────────────────────────────── */
+.fade-in       { animation: fadeIn 0.5s ease-out; }
+.fade-in-delay { animation: fadeIn 0.5s ease-out 0.2s both; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-@media screen and (max-height: 600px) and (orientation: landscape) {
-  .recuperar-content {
-    max-height: 95vh;
-    padding: 25px 40px 20px;
-  }
-  .recuperar-content .logo-container { margin-bottom: 10px; }
-  .recuperar-content h2 { margin-bottom: 8px; }
-  .info-text { margin-bottom: 15px; }
-  .recuperar-content .input-group { margin-bottom: 20px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .recuperar-background,
-  .recuperar-content,
-  .recuperar-content *,
-  body.page-enter,
-  body.page-exit {
-    animation: none !important;
-    transition: none !important;
-    opacity: 1 !important;
-  }
+/* ── Responsivo ─────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .recuperar-content { padding: 36px 24px; margin: 16px; border-radius: 12px; }
+  .codigo-input { width: 54px; height: 62px; font-size: 1.7rem; }
 }

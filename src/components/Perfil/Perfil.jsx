@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { supabase } from '../../services/supabase'
@@ -9,52 +9,48 @@ const Perfil = () => {
   const { user, updateUser, logout } = useAuth()
   const navigate = useNavigate()
   const fileInputRef = useRef(null)
-  
-  // Estados
-  const [editMode, setEditMode] = useState(false)
-  const [nome, setNome] = useState(user?.nome || '')
-  const [descricao, setDescricao] = useState(user?.descricao || '')
-  const [fotoPerfil, setFotoPerfil] = useState(user?.foto_perfil || '')
+
+  // Edição de perfil
+  const [editMode, setEditMode]     = useState(false)
+  const [nome, setNome]             = useState(user?.nome || '')
+  const [descricao, setDescricao]   = useState(user?.descricao || '')
+  const [nomeError, setNomeError]   = useState('')
+  const [descError, setDescError]   = useState('')
+  const [saving, setSaving]         = useState(false)
+
+  // Foto
+  const [fotoPerfil, setFotoPerfil]   = useState(user?.foto_perfil || '')
   const [showPhotoPopup, setShowPhotoPopup] = useState(false)
-  const [photoUrl, setPhotoUrl] = useState('')
+  const [photoUrl, setPhotoUrl]       = useState('')
   const [selectedFile, setSelectedFile] = useState(null)
-  const [previewUrl, setPreviewUrl] = useState('')
-  const [uploading, setUploading] = useState(false)
-  
-  // Estados para conquistas
-  const [conquistas, setConquistas] = useState([])
+  const [previewUrl, setPreviewUrl]   = useState('')
+  const [uploading, setUploading]     = useState(false)
+
+  // Conquistas
+  const [conquistas, setConquistas]           = useState([])
   const [usuarioConquistas, setUsuarioConquistas] = useState([])
   const [selectedConquista, setSelectedConquista] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [totalUsuarios, setTotalUsuarios] = useState(0)
+  const [loadingPage, setLoadingPage]         = useState(true)
+  const [totalUsuarios, setTotalUsuarios]     = useState(1)
   const [porcentagemGlobal, setPorcentagemGlobal] = useState(0)
-  
-  // Estados para validação
-  const [nomeError, setNomeError] = useState('')
-  const [descricaoError, setDescricaoError] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [successMessage, setSuccessMessage] = useState('')
-  const [errorMessage, setErrorMessage] = useState('')
 
-  // Detectar se é mobile
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
+  // Feedback
+  const [successMessage, setSuccessMessage] = useState('')
+  const [errorMessage, setErrorMessage]     = useState('')
+  const [isMobile, setIsMobile]             = useState(window.innerWidth <= 768)
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768)
-    }
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    const onResize = () => setIsMobile(window.innerWidth <= 768)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  // Animações de entrada/saída
   useEffect(() => {
     document.body.classList.remove('page-exit', 'page-transition-exit')
     document.body.classList.add('page-enter')
     return () => document.body.classList.remove('page-enter')
   }, [])
 
-  // Carregar conquistas
   useEffect(() => {
     carregarConquistas()
     contarTotalUsuarios()
@@ -69,237 +65,210 @@ const Perfil = () => {
     }, 300)
   }
 
+  const showSuccess = (msg) => {
+    setSuccessMessage(msg)
+    setTimeout(() => setSuccessMessage(''), 3000)
+  }
+  const showError = (msg) => {
+    setErrorMessage(msg)
+    setTimeout(() => setErrorMessage(''), 4000)
+  }
+
+  // ── Conquistas ────────────────────────────────────────────────────────────
   const carregarConquistas = async () => {
     try {
-      // Buscar todas as conquistas
-      const { data: todasConquistas, error: err1 } = await supabase
-        .from('conquistas')
-        .select('*')
-        .order('id')
-
-      if (err1) throw err1
-
-      // Buscar conquistas do usuário
-      const { data: conquistasUsuario, error: err2 } = await supabase
+      const { data: todas } = await supabase.from('conquistas').select('*').order('id')
+      const { data: minhas } = await supabase
         .from('usuario_conquistas')
         .select('*')
         .eq('usuario_id', user.id)
-
-      if (err2) throw err2
-
-      setConquistas(todasConquistas || [])
-      setUsuarioConquistas(conquistasUsuario || [])
-    } catch (error) {
-      console.error('Erro ao carregar conquistas:', error)
-      setErrorMessage('Erro ao carregar conquistas')
+      setConquistas(todas || [])
+      setUsuarioConquistas(minhas || [])
+    } catch (err) {
+      console.error('Erro conquistas:', err)
     } finally {
-      setLoading(false)
+      setLoadingPage(false)
     }
   }
 
   const contarTotalUsuarios = async () => {
-    try {
-      const { count, error } = await supabase
-        .from('usuarios')
-        .select('*', { count: 'exact', head: true })
-
-      if (error) throw error
-      setTotalUsuarios(count || 1)
-    } catch (error) {
-      console.error('Erro ao contar usuários:', error)
-      setTotalUsuarios(1)
-    }
+    const { count } = await supabase
+      .from('usuarios')
+      .select('*', { count: 'exact', head: true })
+    setTotalUsuarios(count || 1)
   }
 
-  const getConquistaProgresso = (conquistaId) => {
-    const uc = usuarioConquistas.find(uc => uc.conquista_id === conquistaId)
-    return uc || { progresso: 0, completa: false }
+  const getConquistaProgresso = (id) =>
+    usuarioConquistas.find(uc => uc.conquista_id === id) || { progresso: 0, completa: false }
+
+  const carregarPorcentagemGlobal = async (id) => {
+    const { count } = await supabase
+      .from('usuario_conquistas')
+      .select('*', { count: 'exact', head: true })
+      .eq('conquista_id', id)
+      .eq('completa', true)
+    setPorcentagemGlobal(Math.round(((count || 0) / totalUsuarios) * 100))
   }
 
-  const carregarPorcentagemGlobal = async (conquistaId) => {
-    try {
-      const { count, error } = await supabase
-        .from('usuario_conquistas')
-        .select('*', { count: 'exact', head: true })
-        .eq('conquista_id', conquistaId)
-        .eq('completa', true)
-
-      if (error) throw error
-      setPorcentagemGlobal(Math.round((count / totalUsuarios) * 100))
-    } catch (error) {
-      console.error('Erro ao calcular porcentagem:', error)
-      setPorcentagemGlobal(0)
-    }
-  }
-
-  const handleFotoClick = () => {
-    setShowPhotoPopup(true)
-    setPhotoUrl('')
+  // ── FOTO: abre galeria diretamente (sem popup intermediário) ─────────────
+  // O botão de câmera chama handleClickFoto → dispara o input[type=file] nativo.
+  // O input está no DOM mas invisível — não fica dentro do overlay do popup.
+  const handleClickFoto = () => {
+    // Reseta estado antes de abrir
     setSelectedFile(null)
     setPreviewUrl('')
+    setPhotoUrl('')
     setErrorMessage('')
+    // Dispara o seletor de arquivo nativo do sistema operacional / galeria
+    fileInputRef.current?.click()
   }
 
+  // Quando o usuário escolhe um arquivo
   const handleFileSelect = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      // Validar tipo e tamanho
-      if (!file.type.startsWith('image/')) {
-        setErrorMessage('Por favor, selecione uma imagem válida')
-        return
-      }
-      if (file.size > 5 * 1024 * 1024) { // 5MB
-        setErrorMessage('A imagem não pode ter mais de 5MB')
-        return
-      }
-      
-      setSelectedFile(file)
-      const url = URL.createObjectURL(file)
-      setPreviewUrl(url)
-      setPhotoUrl('') // Limpar URL se houver
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const ext = file.name.split('.').pop().toLowerCase()
+    if (!['jpg','jpeg','png','webp','gif'].includes(ext)) {
+      showError('Formato inválido. Use JPG, PNG, WebP ou GIF.')
+      return
     }
+    if (file.size > 5 * 1024 * 1024) {
+      showError('Imagem muito grande. Máximo 5MB.')
+      return
+    }
+
+    setSelectedFile(file)
+    setPreviewUrl(URL.createObjectURL(file))
+    // Abre popup só para mostrar preview e confirmar
+    setPhotoUrl('')
+    setShowPhotoPopup(true)
+
+    // Limpa o valor do input para permitir selecionar o mesmo arquivo de novo
+    e.target.value = ''
   }
 
+  // Salva a foto (upload + banco)
   const handlePhotoSubmit = async () => {
+    if (!selectedFile && !photoUrl) return
+
     setUploading(true)
     setErrorMessage('')
 
     try {
-      let fotoUrl = fotoPerfil
+      let novaUrl = ''
 
       if (selectedFile) {
-        // Upload da imagem
-        const fileExt = selectedFile.name.split('.').pop()
-        const fileName = `${user.id}-${Date.now()}.${fileExt}`
-        const filePath = `${fileName}`
+        // ── Upload do arquivo para Supabase Storage ──────────────────────
+        const ext  = selectedFile.name.split('.').pop().toLowerCase()
+        const path = `${user.id}/avatar.${ext}`
+
+        // Remove avatar anterior do mesmo path (ignora erro 404)
+        await supabase.storage.from('perfil').remove([path])
 
         const { error: uploadError } = await supabase.storage
           .from('perfil')
-          .upload(filePath, selectedFile)
+          .upload(path, selectedFile, { upsert: true, contentType: selectedFile.type })
 
-        if (uploadError) throw uploadError
+        if (uploadError) throw new Error(`Upload falhou: ${uploadError.message}`)
 
-        // Pegar URL pública
-        const { data: urlData } = supabase.storage
+        const { data: { publicUrl } } = supabase.storage
           .from('perfil')
-          .getPublicUrl(filePath)
+          .getPublicUrl(path)
 
-        fotoUrl = urlData.publicUrl
+        // Timestamp para forçar reload do cache do browser
+        novaUrl = `${publicUrl}?t=${Date.now()}`
+
       } else if (photoUrl) {
-        // Validar URL
-        try {
-          new URL(photoUrl)
-          fotoUrl = photoUrl
-        } catch {
-          throw new Error('URL inválida')
-        }
+        // ── URL externa direta ────────────────────────────────────────────
+        try { new URL(photoUrl) } catch { throw new Error('URL inválida.') }
+        novaUrl = photoUrl
       }
 
-      if (fotoUrl && fotoUrl !== fotoPerfil) {
-        const result = await authService.atualizarFotoPerfil(user.id, fotoUrl)
-        if (result.success) {
-          setFotoPerfil(fotoUrl)
-          updateUser({ foto_perfil: fotoUrl })
-          setSuccessMessage('Foto atualizada com sucesso!')
-          setTimeout(() => setSuccessMessage(''), 3000)
-          setShowPhotoPopup(false)
-        } else {
-          throw new Error(result.error)
-        }
-      }
-    } catch (error) {
-      console.error('Erro ao atualizar foto:', error)
-      setErrorMessage(error.message || 'Erro ao atualizar foto')
+      // ── Salva a URL no banco ──────────────────────────────────────────
+      const { error: dbError } = await supabase
+        .from('usuarios')
+        .update({ foto_perfil: novaUrl })
+        .eq('id', user.id)
+
+      if (dbError) throw new Error(`Banco: ${dbError.message}`)
+
+      // ── Atualiza estado local ─────────────────────────────────────────
+      setFotoPerfil(novaUrl)
+      updateUser({ foto_perfil: novaUrl })
+      setShowPhotoPopup(false)
+      setSelectedFile(null)
+      setPreviewUrl('')
+      showSuccess('Foto atualizada com sucesso!')
+
+    } catch (err) {
+      console.error('Erro ao salvar foto:', err)
+      showError(err.message || 'Erro ao enviar foto. Tente novamente.')
     } finally {
       setUploading(false)
     }
   }
 
-  const verificarNomeDisponivel = async (nome) => {
-    if (nome === user.nome) return true
-    
-    const { data, error } = await supabase
+  const fecharPhotoPopup = () => {
+    if (uploading) return
+    setShowPhotoPopup(false)
+    setSelectedFile(null)
+    setPreviewUrl('')
+    setPhotoUrl('')
+  }
+
+  // ── Salvar edição de perfil ────────────────────────────────────────────────
+  const verificarNomeDisponivel = async (n) => {
+    if (n === user.nome) return true
+    const { data } = await supabase
       .from('usuarios')
       .select('id')
-      .eq('nome', nome)
-      .single()
-
+      .ilike('nome', n)
+      .maybeSingle()
     return !data
   }
 
   const handleSalvar = async () => {
     setNomeError('')
-    setDescricaoError('')
+    setDescError('')
     setErrorMessage('')
     setSaving(true)
 
-    // Validações
-    if (!nome.trim()) {
-      setNomeError('Nome não pode estar vazio')
-      setSaving(false)
-      return
-    }
+    if (!nome.trim())     { setNomeError('Nome não pode estar vazio');         setSaving(false); return }
+    if (nome.length < 3)  { setNomeError('Nome precisa ter ao menos 3 letras'); setSaving(false); return }
+    if (descricao.length > 250) { setDescError('Máximo 250 caracteres');       setSaving(false); return }
 
-    if (nome.length < 3) {
-      setNomeError('Nome deve ter pelo menos 3 caracteres')
-      setSaving(false)
-      return
-    }
+    const disponivel = await verificarNomeDisponivel(nome.trim())
+    if (!disponivel) { setNomeError('Este nome já está em uso'); setSaving(false); return }
 
-    if (descricao.length > 250) {
-      setDescricaoError('Descrição não pode ter mais de 250 caracteres')
-      setSaving(false)
-      return
-    }
+    const { error } = await supabase
+      .from('usuarios')
+      .update({ nome: nome.trim(), descricao, ultimo_acesso: new Date() })
+      .eq('id', user.id)
 
-    const nomeDisponivel = await verificarNomeDisponivel(nome)
-    if (!nomeDisponivel) {
-      setNomeError('Nome de usuário já está em uso')
-      setSaving(false)
-      return
-    }
-
-    try {
-      const { error } = await supabase
-        .from('usuarios')
-        .update({ 
-          nome, 
-          descricao,
-          ultimo_acesso: new Date()
-        })
-        .eq('id', user.id)
-
-      if (error) throw error
-
-      updateUser({ nome, descricao })
+    if (error) {
+      showError('Erro ao salvar. Tente novamente.')
+    } else {
+      updateUser({ nome: nome.trim(), descricao })
       setEditMode(false)
-      setSuccessMessage('Perfil atualizado com sucesso!')
-      setTimeout(() => setSuccessMessage(''), 3000)
-    } catch (error) {
-      console.error('Erro ao salvar:', error)
-      setErrorMessage('Erro ao salvar alterações')
-    } finally {
-      setSaving(false)
+      showSuccess('Perfil atualizado com sucesso!')
     }
+    setSaving(false)
   }
 
-  const handleLogout = async () => {
-    await authService.logout(user.id)
+  const handleLogout = () => {
     logout()
     navigateWithExit('/')
   }
 
-  // Mascarar email
   const maskEmail = (email) => {
     if (!email) return ''
     const [local, domain] = email.split('@')
     if (local.length <= 3) return `${local}@${domain}`
-    const visiblePart = local.substring(0, 3)
-    const maskedPart = '*'.repeat(local.length - 3)
-    return `${visiblePart}${maskedPart}@${domain}`
+    return `${local.slice(0, 3)}${'*'.repeat(local.length - 3)}@${domain}`
   }
 
-  if (loading) {
+  if (loadingPage) {
     return (
       <div className="perfil-loading">
         <div className="loader"></div>
@@ -313,7 +282,21 @@ const Perfil = () => {
       <div className="perfil-background"></div>
       <div className="perfil-overlay"></div>
 
+      {/*
+        Input de arquivo FORA de qualquer overlay/popup.
+        Fica invisível no DOM mas sempre acessível pelo ref.
+        Isso evita que qualquer z-index ou pointer-events bloqueie o clique.
+      */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+        style={{ display: 'none' }}
+        onChange={handleFileSelect}
+      />
+
       <div className={`perfil-content ${isMobile ? 'mobile' : ''}`}>
+
         {/* Header */}
         <header className="perfil-header">
           <button className="back-button" onClick={() => navigateWithExit('/home')}>
@@ -326,47 +309,34 @@ const Perfil = () => {
             </button>
           ) : (
             <div className="edit-actions">
-              <button className="cancel-button" onClick={() => setEditMode(false)}>
+              <button className="cancel-button" onClick={() => { setEditMode(false); setNomeError(''); setDescError('') }}>
                 Cancelar
               </button>
-              <button 
-                className="save-button" 
-                onClick={handleSalvar}
-                disabled={saving}
-              >
+              <button className="save-button" onClick={handleSalvar} disabled={saving}>
                 {saving ? '...' : 'Salvar'}
               </button>
             </div>
           )}
         </header>
 
-        {/* Mensagens */}
-        {successMessage && (
-          <div className="success-message">
-            {successMessage}
-          </div>
-        )}
-        {errorMessage && (
-          <div className="error-message">
-            {errorMessage}
-          </div>
-        )}
+        {/* Mensagens de feedback */}
+        {successMessage && <div className="success-message">{successMessage}</div>}
+        {errorMessage   && <div className="error-message">{errorMessage}</div>}
 
-        {/* Conteúdo principal */}
         <div className={`perfil-main ${isMobile ? 'mobile' : ''}`}>
-          {/* Coluna esquerda - Foto e informações */}
+
+          {/* ── Coluna Esquerda ── */}
           <div className="perfil-left">
             <div className="foto-section">
               <div className="foto-container">
                 {fotoPerfil ? (
-                  <img 
-                    src={fotoPerfil} 
-                    alt={user.nome} 
+                  <img
+                    src={fotoPerfil}
+                    alt={user.nome}
                     className="foto-perfil"
                     onError={(e) => {
-                      e.target.onerror = null
                       e.target.style.display = 'none'
-                      e.target.parentElement.innerHTML = `<div class="foto-placeholder">${user.nome?.charAt(0).toUpperCase()}</div>`
+                      setFotoPerfil('')
                     }}
                   />
                 ) : (
@@ -374,8 +344,14 @@ const Perfil = () => {
                     {user.nome?.charAt(0).toUpperCase()}
                   </div>
                 )}
-                <button className="editar-foto-btn" onClick={handleFotoClick}>
-                  ✎
+                {/* Botão de câmera — chama handleClickFoto que dispara o input nativo */}
+                <button
+                  className="editar-foto-btn"
+                  onClick={handleClickFoto}
+                  title="Alterar foto da galeria"
+                  type="button"
+                >
+                  📷
                 </button>
               </div>
             </div>
@@ -384,9 +360,7 @@ const Perfil = () => {
               <div className="info-section">
                 <h2>{user.nome}</h2>
                 <p className="email-mask">{maskEmail(user.email)}</p>
-                {user.descricao && (
-                  <p className="descricao">{user.descricao}</p>
-                )}
+                {user.descricao && <p className="descricao">{user.descricao}</p>}
                 <div className="stats">
                   <div className="stat">
                     <span className="stat-value">{user.gold || 0}</span>
@@ -407,36 +381,30 @@ const Perfil = () => {
                   <input
                     type="text"
                     value={nome}
-                    onChange={(e) => setNome(e.target.value)}
+                    onChange={e => { setNome(e.target.value); setNomeError('') }}
                     className={nomeError ? 'error' : ''}
                     placeholder="Seu nome"
+                    maxLength={30}
                   />
                   {nomeError && <span className="error-text">{nomeError}</span>}
                 </div>
 
                 <div className="input-group">
                   <label>Email (não editável)</label>
-                  <input
-                    type="email"
-                    value={maskEmail(user.email)}
-                    disabled
-                    className="disabled"
-                  />
+                  <input type="email" value={maskEmail(user.email)} disabled className="disabled" />
                 </div>
 
                 <div className="input-group">
                   <label>Descrição</label>
                   <textarea
                     value={descricao}
-                    onChange={(e) => setDescricao(e.target.value.slice(0, 250))}
-                    className={descricaoError ? 'error' : ''}
+                    onChange={e => { setDescricao(e.target.value.slice(0, 250)); setDescError('') }}
+                    className={descError ? 'error' : ''}
                     rows="3"
                     placeholder="Conte um pouco sobre você..."
                   />
-                  <div className="char-counter">
-                    {descricao.length}/250
-                  </div>
-                  {descricaoError && <span className="error-text">{descricaoError}</span>}
+                  <div className="char-counter">{descricao.length}/250</div>
+                  {descError && <span className="error-text">{descError}</span>}
                 </div>
               </div>
             )}
@@ -446,32 +414,27 @@ const Perfil = () => {
             </button>
           </div>
 
-          {/* Coluna direita - Conquistas */}
+          {/* ── Coluna Direita: Conquistas ── */}
           <div className="perfil-right">
-            <h2>Conquistas</h2>
+            <h2>Conquistas ({usuarioConquistas.filter(uc => uc.completa).length}/{conquistas.length})</h2>
             <div className="conquistas-grid">
-              {conquistas.map((conquista) => {
-                const progresso = getConquistaProgresso(conquista.id)
+              {conquistas.map(c => {
+                const prog = getConquistaProgresso(c.id)
                 return (
                   <div
-                    key={conquista.id}
-                    className={`conquista-card ${progresso.completa ? 'completa' : ''}`}
-                    onClick={() => {
-                      setSelectedConquista(conquista)
-                      carregarPorcentagemGlobal(conquista.id)
-                    }}
+                    key={c.id}
+                    className={`conquista-card ${prog.completa ? 'completa' : ''}`}
+                    onClick={() => { setSelectedConquista(c); carregarPorcentagemGlobal(c.id) }}
                   >
-                    <div className="conquista-icone">
-                      {conquista.icone}
-                    </div>
+                    <div className="conquista-icone">{c.icone}</div>
                     <div className="conquista-info">
-                      <h4>{conquista.nome}</h4>
-                      {!progresso.completa && (
+                      <h4>{c.nome}</h4>
+                      {!prog.completa && (
                         <div className="progresso-bar">
-                          <div 
+                          <div
                             className="progresso-fill"
-                            style={{ width: `${(progresso.progresso / (conquista.requisito_valor || 1)) * 100}%` }}
-                          ></div>
+                            style={{ width: `${Math.min((prog.progresso / (c.requisito_valor || 1)) * 100, 100)}%` }}
+                          />
                         </div>
                       )}
                     </div>
@@ -482,58 +445,47 @@ const Perfil = () => {
           </div>
         </div>
 
-        {/* Popup de conquista */}
+        {/* ── Popup: Conquista ── */}
         {selectedConquista && (
           <div className="conquista-popup" onClick={() => setSelectedConquista(null)}>
-            <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+            <div className="popup-content" onClick={e => e.stopPropagation()}>
               <button className="close-popup" onClick={() => setSelectedConquista(null)}>×</button>
-              
               <div className="popup-header">
                 <span className="popup-icone">{selectedConquista.icone}</span>
                 <h3>{selectedConquista.nome}</h3>
               </div>
-
               <p className="popup-descricao">{selectedConquista.descricao}</p>
-
               {(() => {
-                const progresso = getConquistaProgresso(selectedConquista.id)
-                
+                const prog = getConquistaProgresso(selectedConquista.id)
                 return (
                   <>
                     <div className="popup-progresso">
                       <div className="progresso-label">
                         <span>Seu progresso</span>
-                        <span>
-                          {progresso.progresso}/{selectedConquista.requisito_valor || 1}
-                        </span>
+                        <span>{prog.progresso}/{selectedConquista.requisito_valor || 1}</span>
                       </div>
                       <div className="progresso-bar grande">
-                        <div 
+                        <div
                           className="progresso-fill"
-                          style={{ width: `${(progresso.progresso / (selectedConquista.requisito_valor || 1)) * 100}%` }}
-                        ></div>
+                          style={{ width: `${Math.min((prog.progresso / (selectedConquista.requisito_valor || 1)) * 100, 100)}%` }}
+                        />
                       </div>
                     </div>
-
                     <div className="popup-global">
                       <h4>Estatísticas Globais</h4>
                       <div className="global-stats">
                         <div className="global-stat">
-                          <span className="stat-label">Jogadores com esta conquista</span>
+                          <span>Jogadores com esta conquista</span>
                           <span className="stat-value">{porcentagemGlobal}%</span>
                         </div>
                         <div className="global-bar">
-                          <div 
-                            className="global-fill"
-                            style={{ width: `${porcentagemGlobal}%` }}
-                          ></div>
+                          <div className="global-fill" style={{ width: `${porcentagemGlobal}%` }} />
                         </div>
                       </div>
                     </div>
-
-                    {progresso.completa && progresso.data_conquista && (
+                    {prog.completa && prog.data_conquista && (
                       <div className="conquista-data">
-                        Conquistada em: {new Date(progresso.data_conquista).toLocaleDateString('pt-BR')}
+                        Conquistada em: {new Date(prog.data_conquista).toLocaleDateString('pt-BR')}
                       </div>
                     )}
                   </>
@@ -543,59 +495,68 @@ const Perfil = () => {
           </div>
         )}
 
-        {/* Popup de foto */}
+        {/* ── Popup: Foto (preview + confirmar) ── */}
         {showPhotoPopup && (
-          <div className="photo-popup" onClick={() => setShowPhotoPopup(false)}>
-            <div className="popup-content" onClick={(e) => e.stopPropagation()}>
-              <button className="close-popup" onClick={() => setShowPhotoPopup(false)}>×</button>
+          <div className="photo-popup" onClick={fecharPhotoPopup}>
+            <div className="popup-content" onClick={e => e.stopPropagation()}>
+              <button className="close-popup" onClick={fecharPhotoPopup} disabled={uploading}>×</button>
               <h3>Alterar Foto de Perfil</h3>
-              
+
               <div className="photo-options">
-                <div className="photo-option">
-                  <label>URL da Imagem</label>
-                  <input
-                    type="url"
-                    placeholder="https://exemplo.com/imagem.jpg"
-                    value={photoUrl}
-                    onChange={(e) => {
-                      setPhotoUrl(e.target.value)
-                      setSelectedFile(null)
-                      setPreviewUrl('')
-                    }}
-                  />
-                </div>
-
-                <div className="photo-option">
-                  <label>Ou faça upload</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                    ref={fileInputRef}
-                  />
-                  <small>Formatos: JPG, PNG, GIF • Máx: 5MB</small>
-                </div>
-
+                {/* Preview da imagem selecionada */}
                 {previewUrl && (
                   <div className="photo-preview">
                     <img src={previewUrl} alt="Preview" />
                   </div>
                 )}
 
+                {/* Opção: URL externa (caso não tenha selecionado arquivo) */}
+                {!selectedFile && (
+                  <div className="photo-option">
+                    <label>Ou cole uma URL de imagem</label>
+                    <input
+                      type="url"
+                      placeholder="https://exemplo.com/imagem.jpg"
+                      value={photoUrl}
+                      onChange={e => setPhotoUrl(e.target.value)}
+                    />
+                  </div>
+                )}
+
+                {/* Botão para trocar o arquivo selecionado */}
+                {selectedFile && (
+                  <p className="photo-hint">
+                    📎 {selectedFile.name} &nbsp;
+                    <button
+                      className="trocar-btn"
+                      type="button"
+                      onClick={() => { setSelectedFile(null); setPreviewUrl(''); handleClickFoto() }}
+                      disabled={uploading}
+                    >
+                      Trocar arquivo
+                    </button>
+                  </p>
+                )}
+
+                {errorMessage && <p className="error-text">{errorMessage}</p>}
+
                 <div className="popup-actions">
-                  <button onClick={() => setShowPhotoPopup(false)}>Cancelar</button>
-                  <button 
-                    onClick={handlePhotoSubmit}
-                    disabled={(!photoUrl && !selectedFile) || uploading}
+                  <button onClick={fecharPhotoPopup} disabled={uploading}>
+                    Cancelar
+                  </button>
+                  <button
                     className="primary"
+                    onClick={handlePhotoSubmit}
+                    disabled={(!selectedFile && !photoUrl) || uploading}
                   >
-                    {uploading ? 'Enviando...' : 'Salvar'}
+                    {uploading ? 'Enviando…' : 'Salvar Foto'}
                   </button>
                 </div>
               </div>
             </div>
           </div>
         )}
+
       </div>
     </div>
   )

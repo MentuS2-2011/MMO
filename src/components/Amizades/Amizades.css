@@ -1,0 +1,328 @@
+/* ── Base ───────────────────────────────────────────────────────────────── */
+.amizades-container {
+  position: relative;
+  min-height: 100vh;
+  background: #0a0a0f;
+  overflow-y: auto;
+}
+
+.amizades-background {
+  position: fixed;
+  inset: 0;
+  background-image: url('../../assets/Wallpaper/Cenario-home.jpg');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.25;
+  z-index: 0;
+}
+
+.amizades-content {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+}
+
+/* ── Toast ──────────────────────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 24px;
+  border-radius: 24px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  z-index: 1000;
+  animation: toastIn 0.3s ease-out;
+  pointer-events: none;
+}
+.toast.ok   { background: #2e7d32; color: #fff; }
+.toast.erro { background: #c62828; color: #fff; }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.amizades-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.amizades-header h1 {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #fff;
+  margin: 0;
+  letter-spacing: 2px;
+}
+.btn-voltar {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid #333;
+  color: #ccc;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.btn-voltar:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+/* ── Abas ────────────────────────────────────────────────────────────────── */
+.abas {
+  display: flex;
+  gap: 4px;
+  background: rgba(0,0,0,0.4);
+  padding: 4px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #222;
+}
+.aba {
+  flex: 1;
+  padding: 10px 8px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: #666;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  letter-spacing: 0.5px;
+}
+.aba:hover  { color: #ccc; }
+.aba.active { background: rgba(255,215,0,0.12); color: #ffd700; }
+
+.badge {
+  background: #444;
+  color: #ccc;
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+.badge.alert {
+  background: rgba(255,107,107,0.3);
+  color: #ff6b6b;
+}
+
+/* ── Conteúdo das abas ──────────────────────────────────────────────────── */
+.aba-content { animation: fadeIn 0.25s ease-out; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Busca ───────────────────────────────────────────────────────────────── */
+.busca-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.busca-icon {
+  position: absolute;
+  left: 14px;
+  font-size: 1rem;
+  pointer-events: none;
+}
+.busca-input {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 12px 40px 12px 40px;
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.busca-input:focus { border-color: rgba(255,215,0,0.5); }
+.busca-input::placeholder { color: #555; }
+.busca-clear {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 4px;
+}
+.busca-clear:hover { color: #fff; }
+.busca-hint {
+  text-align: center;
+  color: #555;
+  font-size: 0.82rem;
+  margin-top: 40px;
+}
+
+/* ── Lista de usuários ──────────────────────────────────────────────────── */
+.lista-usuarios {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.usuario-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 12px 14px;
+  transition: border-color 0.2s;
+}
+.usuario-card:hover { border-color: #333; }
+
+.usuario-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1rem;
+  color: #000;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.usuario-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.usuario-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.usuario-nome {
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.usuario-stats { color: #666; font-size: 0.75rem; }
+
+.usuario-acoes { flex-shrink: 0; }
+
+/* ── Botões de ação ─────────────────────────────────────────────────────── */
+.btn-adicionar {
+  background: linear-gradient(135deg, #ffd700, #ffb300);
+  border: none;
+  border-radius: 20px;
+  padding: 7px 16px;
+  color: #000;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-adicionar:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(255,215,0,0.35); }
+
+.tag-amigo   { color: #81c784; font-size: 0.8rem; font-weight: 600; }
+.tag-pendente{ color: #ffb74d; font-size: 0.8rem; font-weight: 600; }
+
+.btn-remover {
+  background: rgba(255,107,107,0.1);
+  border: 1px solid rgba(255,107,107,0.3);
+  color: #ff6b6b;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-remover:hover { background: rgba(255,107,107,0.25); }
+
+.acoes-pendente { display: flex; gap: 6px; }
+.btn-aceitar {
+  background: rgba(76,175,80,0.15);
+  border: 1px solid rgba(76,175,80,0.4);
+  color: #81c784;
+  padding: 7px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-aceitar:hover { background: rgba(76,175,80,0.3); }
+
+.btn-recusar {
+  background: rgba(255,107,107,0.1);
+  border: 1px solid rgba(255,107,107,0.3);
+  color: #ff6b6b;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.btn-recusar:hover { background: rgba(255,107,107,0.25); }
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 48px 0;
+  color: #555;
+}
+.empty-state span { font-size: 2.5rem; display: block; margin-bottom: 10px; }
+.empty-state p    { font-size: 0.9rem; margin-bottom: 16px; }
+.empty-state button {
+  background: rgba(255,215,0,0.1);
+  border: 1px solid rgba(255,215,0,0.3);
+  color: #ffd700;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.empty-state button:hover { background: rgba(255,215,0,0.2); }
+
+/* ── Loading ─────────────────────────────────────────────────────────────── */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+.loader {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(255,215,0,0.2);
+  border-top-color: #ffd700;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Responsivo ─────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .aba { font-size: 0.75rem; padding: 8px 4px; }
+  .usuario-card { padding: 10px; }
+}
